@@ -1,5 +1,8 @@
 package com.wandercosta.witsgenerator.generator;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * This class is responsible for generating the Wits blocks.
  *
@@ -30,7 +33,8 @@ public class WitsGenerator {
         StringBuilder str = new StringBuilder();
         for (int currentRecord = 1; currentRecord <= records; currentRecord++) {
             str.append("&&\n");
-            for (int currentItem = 1; currentItem <= items; currentItem++) {
+            str.append(getGeneralRecordItems(currentRecord));
+            for (int currentItem = 8; currentItem <= items; currentItem++) {
                 str.append(lineGenerator.generate(currentRecord, currentItem)).append("\n");
             }
             str.append("!!");
@@ -45,6 +49,16 @@ public class WitsGenerator {
         if (value <= 0 || value >= 100) {
             throw new IllegalArgumentException(message);
         }
+    }
+
+    private String getGeneralRecordItems(int currentRecord) {
+        return currentRecord + "01GeneratedWell" + "\n" +
+                currentRecord + "021" + "\n" +
+                currentRecord + "03GeneralRecord" + "\n" +
+                currentRecord + "04Empty" + "\n" +
+                currentRecord + "05" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + "\n" +
+                currentRecord + "06" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss")) + "\n" +
+                currentRecord + "0701" + "\n";
     }
 
 }

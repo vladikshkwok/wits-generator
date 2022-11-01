@@ -31,11 +31,20 @@ public class TcpServer extends Thread {
 
     @Override
     public void run() {
+        ServerSocket s = null;
         try {
             serverSocket = serverSocketFactory.createServerSocket(port);
-            clientSocket = serverSocket.accept();
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        while (true) {
+            try {
+                clientSocket = serverSocket.accept();
+                System.out.println("Client connected");
+            } catch (IOException ex) {
+                System.out.println("Client disconnected");
+                break;
+            }
         }
     }
 

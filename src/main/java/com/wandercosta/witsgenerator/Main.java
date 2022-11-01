@@ -3,6 +3,7 @@ package com.wandercosta.witsgenerator;
 import com.wandercosta.witsgenerator.connection.TcpServer;
 import com.wandercosta.witsgenerator.generator.WitsGenerator;
 import com.wandercosta.witsgenerator.generator.WitsLineGenerator;
+
 import java.io.IOException;
 import java.util.Arrays;
 import javax.net.ServerSocketFactory;
@@ -14,7 +15,7 @@ import javax.net.ServerSocketFactory;
  */
 public class Main {
 
-    public static void main(String... args) throws IOException {
+    public static void main(String... args) {
         if (Arrays.asList(args).contains("--help")) {
             exit(false, help());
         }
@@ -25,22 +26,21 @@ public class Main {
 
         try {
             int port = Integer.parseInt(args[0]);
-            int freq = Integer.parseInt(args[1]);
+            int freq = Integer.parseInt(args[1]) * 1000;
             int records = Integer.parseInt(args[2]);
             int items = Integer.parseInt(args[3]);
 
             WitsGenerator gen = new WitsGenerator(new WitsLineGenerator());
-            ServerSocketFactory serverSocketFactory = ServerSocketFactory.getDefault();
-            TcpServer tcpServer = new TcpServer(serverSocketFactory, port);
-            WitsServer witsServer = new WitsServer(tcpServer, gen, port, freq, records, items);
-
-            startShutdownHook(witsServer);
-
-            witsServer.start();
+            while (true) { // infinitely run socket
+                ServerSocketFactory serverSocketFactory = ServerSocketFactory.getDefault();
+                TcpServer tcpServer = new TcpServer(serverSocketFactory, port);
+                WitsServer witsServer = new WitsServer(tcpServer, gen, port, freq, records, items);
+                startShutdownHook(witsServer);
+                witsServer.start();
+                witsServer.stop();
+            }
         } catch (NumberFormatException ex) {
             exit(true, "Wrong input: " + ex.getMessage());
-        } catch (IOException ex) {
-            exit(true, "Error in the stream: " + ex.getMessage());
         }
     }
 

@@ -2,6 +2,7 @@ package com.wandercosta.witsgenerator;
 
 import com.wandercosta.witsgenerator.connection.TcpServer;
 import com.wandercosta.witsgenerator.generator.WitsGenerator;
+
 import java.io.IOException;
 import java.util.Objects;
 
@@ -40,15 +41,21 @@ public class WitsServer {
     }
 
     @SuppressWarnings("SleepWhileInLoop")
-    public void start() throws IOException {
+    public void start()  {
         keepRunning = true;
         server.start();
-
         System.out.println("WitsServer started!");
         long spentTime;
         while (keepRunning) {
             spentTime = System.currentTimeMillis();
-            server.writeln(generator.generate(records, items));
+
+            try {
+                server.writeln(generator.generate(records, items));
+            } catch (IOException e) {
+                server.stopServer();
+                break;
+            }
+
             spentTime = -spentTime + System.currentTimeMillis();
             try {
                 Thread.sleep(frequency - spentTime);
@@ -56,6 +63,10 @@ public class WitsServer {
                 break;
             }
         }
+    }
+
+    public boolean serverIsAlive() {
+        return server.isAlive();
     }
 
     public void stop() {
